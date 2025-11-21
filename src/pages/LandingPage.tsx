@@ -173,6 +173,47 @@ const LandingPage: React.FC = () => {
                     </Link>
                 </div>
             </section>
+
+            {/* Meet the Team */}
+            <section style={{ padding: '6rem 0', background: 'var(--color-bg)' }}>
+                <div className="container" style={{ textAlign: 'center' }}>
+                    <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontWeight: '700' }}>Built by Travelers, for Travelers</h2>
+                    <p style={{ color: 'var(--color-text-muted)', marginBottom: '3rem', maxWidth: '600px', margin: '0 auto 3rem' }}>
+                        We are a team of three passionate Lagosians dedicated to making solo travel safe and exciting.
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+                        {[1, 2, 3].map((i) => (
+                            <motion.div
+                                key={i}
+                                whileHover={{ y: -5 }}
+                                className="card"
+                                style={{ textAlign: 'center', padding: '2rem' }}
+                            >
+                                <div style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    borderRadius: '50%',
+                                    background: 'var(--color-bg)',
+                                    margin: '0 auto 1rem',
+                                    border: '2px solid var(--color-primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '2rem'
+                                }}>
+                                    🧑🏾‍💻
+                                </div>
+                                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Co-Founder {i}</h3>
+                                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                                    Passionate about {i === 1 ? 'Technology & Safety' : i === 2 ? 'Community & Culture' : 'Business & Growth'}.
+                                </p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* Footer */}
             <footer style={{ padding: '2rem 0', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.9rem', borderTop: '1px solid var(--color-border)' }}>
                 <div className="container">

@@ -177,10 +177,11 @@ const LandingPage: React.FC = () => {
             <footer style={{ padding: '2rem 0', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.9rem', borderTop: '1px solid var(--color-border)' }}>
                 <div className="container">
                     <p>&copy; 2025 Exolorer. Made with ❤️ in Lagos.</p>
-                    <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+                    <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                         <Link to="/safety" style={{ color: 'inherit', textDecoration: 'none' }}>Safety Center</Link>
                         <Link to="/discover" style={{ color: 'inherit', textDecoration: 'none' }}>Discover Gems</Link>
                         <a href="/DEPLOYMENT_AND_PAYMENTS.md" target="_blank" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>Owner's Guide</a>
+                        <a href="/PUBLISH_TO_STORES.md" target="_blank" style={{ color: 'var(--color-secondary)', textDecoration: 'none' }}>App Store Guide</a>
                     </div>
                 </div>
             </footer>

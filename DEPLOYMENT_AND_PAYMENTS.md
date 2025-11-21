@@ -64,6 +64,26 @@ To receive payments from users (for Premium subscriptions, tickets, etc.) in Nig
     };
     ```
 
+### Step 4: Automate Team Payments (Split Revenue) 🤝
+Since there are **3 founders**, you don't want to manually calculate who gets what. Use **Paystack Splits**.
+
+1.  Log in to your Paystack Dashboard.
+2.  Go to **Transfers** -> **Transaction Splits**.
+3.  Click **New Split**.
+    *   **Name**: "Founders Split".
+    *   **Type**: Percentage.
+    *   **Currency**: NGN.
+4.  **Add Accounts**: Enter the personal bank account details for **Founder 1**, **Founder 2**, and **Founder 3**.
+5.  **Set Percentages**: Assign the percentage each person owns (e.g., 33.33%, 33.33%, 33.34%).
+6.  **Activate**: Copy the `split_code` (e.g., `SPL_xxxxxxxx`).
+7.  **Update Code**: Pass this code in your payment integration:
+    ```javascript
+    const config = {
+        // ... other config
+        split_code: "SPL_xxxxxxxx" // Money will automatically be shared!
+    };
+    ```
+
 ---
 
 ## 3. Monetization Strategy

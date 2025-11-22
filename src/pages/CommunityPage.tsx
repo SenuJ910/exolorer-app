@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Calendar, MessageCircle, CheckCircle, MapPin } from 'lucide-react';
 import communityHero from '../assets/community-hero.png';
+import PaymentModal from '../components/PaymentModal';
 
 const MEETUPS = [
     {
@@ -111,50 +112,7 @@ const CommunityPage: React.FC = () => {
                             gap: '2rem'
                         }}>
                             {MEETUPS.map((meetup) => (
-                                <motion.div
-                                    key={meetup.id}
-                                    className="card"
-                                    style={{ padding: 0, overflow: 'hidden' }}
-                                    whileHover={{ y: -5 }}
-                                >
-                                    <div style={{ height: '150px', background: '#333', position: 'relative' }}>
-                                        <img src={meetup.image} alt={meetup.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        {meetup.verified && (
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: '10px',
-                                                right: '10px',
-                                                background: 'rgba(0,0,0,0.7)',
-                                                padding: '4px 8px',
-                                                borderRadius: '4px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '4px',
-                                                fontSize: '0.75rem',
-                                                color: 'var(--color-success)'
-                                            }}>
-                                                <CheckCircle size={12} /> Verified Safe
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div style={{ padding: '1.5rem' }}>
-                                        <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{meetup.title}</h3>
-                                        <div className="flex flex-col gap-sm text-muted" style={{ fontSize: '0.9rem' }}>
-                                            <div className="flex items-center gap-xs">
-                                                <Calendar size={16} /> {meetup.date}
-                                            </div>
-                                            <div className="flex items-center gap-xs">
-                                                <MapPin size={16} /> {meetup.location}
-                                            </div>
-                                            <div className="flex items-center gap-xs">
-                                                <Users size={16} /> {meetup.attendees} attending
-                                            </div>
-                                        </div>
-                                        <button className="btn btn-primary w-full" style={{ marginTop: '1.5rem' }}>
-                                            Join Meetup
-                                        </button>
-                                    </div>
-                                </motion.div>
+                                <MeetupCard key={meetup.id} meetup={meetup} />
                             ))}
                         </div>
                     </section>
@@ -195,6 +153,81 @@ const CommunityPage: React.FC = () => {
                 </div>
             </div>
         </div>
+    );
+};
+
+const MeetupCard = ({ meetup }: { meetup: typeof MEETUPS[0] }) => {
+    const [isJoined, setIsJoined] = useState(false);
+    const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+
+    const handleJoin = () => {
+        if (isJoined) return;
+
+        // Example: Make the first meetup paid
+        if (meetup.id === 1) {
+            setIsPaymentOpen(true);
+        } else {
+            // Free meetup
+            setIsJoined(true);
+        }
+    };
+
+    return (
+        <>
+            <PaymentModal
+                isOpen={isPaymentOpen}
+                onClose={() => setIsPaymentOpen(false)}
+                planName={`Ticket: ${meetup.title}`}
+                amount="₦2,000"
+            />
+            <motion.div
+                className="card"
+                style={{ padding: 0, overflow: 'hidden' }}
+                whileHover={{ y: -5 }}
+            >
+                <div style={{ height: '150px', background: '#333', position: 'relative' }}>
+                    <img src={meetup.image} alt={meetup.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {meetup.verified && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '10px',
+                            right: '10px',
+                            background: 'rgba(0,0,0,0.7)',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.75rem',
+                            color: 'var(--color-success)'
+                        }}>
+                            <CheckCircle size={12} /> Verified Safe
+                        </div>
+                    )}
+                </div>
+                <div style={{ padding: '1.5rem' }}>
+                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{meetup.title}</h3>
+                    <div className="flex flex-col gap-sm text-muted" style={{ fontSize: '0.9rem' }}>
+                        <div className="flex items-center gap-xs">
+                            <Calendar size={16} /> {meetup.date}
+                        </div>
+                        <div className="flex items-center gap-xs">
+                            <MapPin size={16} /> {meetup.location}
+                        </div>
+                        <div className="flex items-center gap-xs">
+                            <Users size={16} /> {meetup.attendees + (isJoined ? 1 : 0)} attending
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleJoin}
+                        className={`btn w-full ${isJoined ? 'btn-outline' : 'btn-primary'}`}
+                        style={{ marginTop: '1.5rem', borderColor: isJoined ? 'var(--color-success)' : undefined, color: isJoined ? 'var(--color-success)' : undefined }}
+                    >
+                        {isJoined ? '✓ Joined' : (meetup.id === 1 ? 'Join Meetup (₦2,000)' : 'Join Meetup')}
+                    </button>
+                </div>
+            </motion.div>
+        </>
     );
 };
 

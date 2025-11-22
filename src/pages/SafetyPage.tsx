@@ -18,6 +18,7 @@ const SafetyPage: React.FC = () => {
                 display: 'grid',
                 gap: '2rem',
                 maxWidth: '600px',
+
                 margin: '0 auto'
             }}>
                 {/* SOS Button */}

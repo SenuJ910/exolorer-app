@@ -154,9 +154,10 @@ const DiscoverPage: React.FC = () => {
                                 url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
                             />
                             <TileLayer
-                                attribution=''
-                                url="https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.png"
-                                opacity={0.7}
+                                url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+                            />
+                            <TileLayer
+                                url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
                             />
                             {GEMS.map((gem) => (
                                 <Marker

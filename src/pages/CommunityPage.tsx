@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Users, Calendar, MessageCircle, CheckCircle, MapPin } from 'lucide-react';
 import communityHero from '../assets/community-hero.png';
 import PaymentModal from '../components/PaymentModal';
@@ -101,9 +102,9 @@ const CommunityPage: React.FC = () => {
                             <h2 className="flex items-center gap-sm">
                                 <Calendar className="text-primary" /> Upcoming Meetups
                             </h2>
-                            <button className="btn btn-outline" style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}>
+                            <Link to="/events" className="btn btn-outline" style={{ fontSize: '0.9rem', padding: '0.5rem 1rem', textDecoration: 'none' }}>
                                 View All
-                            </button>
+                            </Link>
                         </div>
 
                         <div style={{
@@ -142,7 +143,11 @@ const CommunityPage: React.FC = () => {
                                             <span className="text-muted">({guide.reviews})</span>
                                         </div>
                                     </div>
-                                    <button className="btn btn-outline" style={{ marginLeft: 'auto', padding: '0.5rem' }}>
+                                    <button
+                                        className="btn btn-outline"
+                                        style={{ marginLeft: 'auto', padding: '0.5rem' }}
+                                        onClick={() => alert(`Starting chat with ${guide.name}...`)}
+                                    >
                                         <MessageCircle size={20} />
                                     </button>
                                 </div>

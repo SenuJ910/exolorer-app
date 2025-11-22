@@ -129,6 +129,18 @@ const ConnectPage: React.FC = () => {
         setMapCenter(room.location);
     };
 
+    const handleShareImage = () => {
+        const newMsg: Message = {
+            id: Date.now(),
+            text: "Shared an image",
+            sender: 'me',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            type: 'image',
+            image: `https://placehold.co/400x300/1e293b/FFF?text=Image+Shared`
+        };
+        setMessages([...messages, newMsg]);
+    };
+
     return (
         <div className="connect-page" style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
             <div className="flex h-full">
@@ -172,9 +184,9 @@ const ConnectPage: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex gap-sm text-muted">
-                            <Phone size={20} />
-                            <Video size={20} />
-                            <MoreVertical size={20} />
+                            <Phone size={20} style={{ cursor: 'pointer' }} onClick={() => alert("Starting voice call...")} />
+                            <Video size={20} style={{ cursor: 'pointer' }} onClick={() => alert("Starting video call...")} />
+                            <MoreVertical size={20} style={{ cursor: 'pointer' }} />
                         </div>
                     </div>
 
@@ -240,6 +252,21 @@ const ConnectPage: React.FC = () => {
                                             </div>
                                         </div>
                                     )}
+
+                                    {msg.type === 'image' && msg.image && (
+                                        <div>
+                                            <img
+                                                src={msg.image}
+                                                alt="Shared"
+                                                style={{
+                                                    maxWidth: '100%',
+                                                    borderRadius: '0.5rem',
+                                                    cursor: 'pointer'
+                                                }}
+                                                onClick={() => window.open(msg.image, '_blank')}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                                 <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', display: 'block', textAlign: msg.sender === 'me' ? 'right' : 'left' }}>
                                     {msg.timestamp}
@@ -258,7 +285,13 @@ const ConnectPage: React.FC = () => {
                         gap: '0.5rem',
                         alignItems: 'center'
                     }}>
-                        <button type="button" className="btn btn-outline" style={{ padding: '0.5rem', border: 'none' }}>
+                        <button
+                            type="button"
+                            className="btn btn-outline"
+                            style={{ padding: '0.5rem', border: 'none' }}
+                            onClick={handleShareImage}
+                            title="Share Image"
+                        >
                             <ImageIcon size={20} color="var(--color-text-muted)" />
                         </button>
                         <button

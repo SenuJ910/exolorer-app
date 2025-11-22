@@ -153,6 +153,7 @@ const DashboardPage: React.FC = () => {
                                 </button>
                                 <hr style={{ borderColor: 'var(--color-border)', margin: '0.5rem 0' }} />
                                 <button
+                                    onClick={() => window.location.href = '/'}
                                     style={{
                                         textAlign: 'left',
                                         padding: '0.75rem 1rem',
@@ -211,7 +212,12 @@ const DashboardPage: React.FC = () => {
                                                 <p style={{ color: 'var(--color-text-muted)', maxWidth: '400px', marginBottom: '1.5rem' }}>
                                                     Unlock exclusive local guides, offline maps, and priority safety support.
                                                 </p>
-                                                <button className="btn btn-primary">View Plans</button>
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={() => setIsPaymentOpen(true)}
+                                                >
+                                                    View Plans
+                                                </button>
                                             </div>
                                             <div className="hidden-mobile" style={{ fontSize: '5rem', opacity: 0.1 }}>
                                                 💎

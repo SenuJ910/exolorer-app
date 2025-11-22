@@ -60,14 +60,17 @@ const CommunityPage: React.FC = () => {
     const [joinedMeetups, setJoinedMeetups] = useState<number[]>([]);
 
     const handleJoinClick = (meetup: typeof MEETUPS[0]) => {
+        console.log("Join clicked for:", meetup.title);
         if (joinedMeetups.includes(meetup.id)) return;
 
         if (meetup.id === 1) {
             // Paid meetup
+            console.log("Opening payment modal for:", meetup.title);
             setSelectedMeetup(meetup);
             setPaymentModalOpen(true);
         } else {
             // Free meetup
+            console.log("Joining free meetup:", meetup.title);
             setJoinedMeetups([...joinedMeetups, meetup.id]);
         }
     };

@@ -5,11 +5,12 @@ import { X, Check, CreditCard, Lock } from 'lucide-react';
 interface PaymentModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
     planName?: string;
     amount?: string;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, planName = "Premium Plan", amount = "₦3,000" }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onSuccess, planName = "Premium Plan", amount = "₦3,000" }) => {
     const [step, setStep] = useState<'details' | 'processing' | 'success'>('details');
 
     const handlePayment = (e: React.FormEvent) => {
@@ -22,6 +23,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, planName =
     };
 
     const resetAndClose = () => {
+        if (step === 'success' && onSuccess) {
+            onSuccess();
+        }
         setStep('details');
         onClose();
     };

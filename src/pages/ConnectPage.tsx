@@ -9,7 +9,7 @@ import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-let DefaultIcon = L.icon({
+const DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
     iconSize: [25, 41],
@@ -68,6 +68,7 @@ const ConnectPage: React.FC = () => {
     const [inputText, setInputText] = useState("");
     const [mapCenter, setMapCenter] = useState<[number, number]>(activeRoom.location);
     const [isVRMode, setIsVRMode] = useState(false);
+    const [mapType, setMapType] = useState<'satellite' | 'street'>('satellite');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom of chat
@@ -140,6 +141,37 @@ const ConnectPage: React.FC = () => {
         };
         setMessages([...messages, newMsg]);
     };
+
+    // Auto-reply bot
+    useEffect(() => {
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg && lastMsg.sender === 'me') {
+            const timeout = setTimeout(() => {
+                const replies = [
+                    "That sounds interesting! Tell me more.",
+                    "I totally agree with you.",
+                    "Have you been to the new spot in Ikoyi?",
+                    `I'm not sure about "${lastMsg.text}", but we can explore it!`,
+                    "Is it safe to go there at night?",
+                    "Let's meet up there!",
+                    "Lol crazy 😅",
+                    "Any other recommendations?"
+                ];
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+
+                const replyMsg: Message = {
+                    id: Date.now(),
+                    text: randomReply,
+                    sender: 'other',
+                    senderName: "Exolorer Bot",
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    type: 'text'
+                };
+                setMessages(prev => [...prev, replyMsg]);
+            }, 2000);
+            return () => clearTimeout(timeout);
+        }
+    }, [messages]);
 
     return (
         <div className="connect-page" style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
@@ -333,31 +365,56 @@ const ConnectPage: React.FC = () => {
                     perspective: '1000px' // Enable 3D perspective
                 }}>
 
-                    {/* VR Toggle Button */}
-                    <button
-                        onClick={() => setIsVRMode(!isVRMode)}
-                        style={{
-                            position: 'absolute',
-                            top: '1rem',
-                            left: '1rem',
-                            zIndex: 1000,
-                            background: isVRMode ? 'var(--color-primary)' : 'rgba(15, 23, 42, 0.9)',
-                            color: isVRMode ? '#000' : '#fff',
-                            border: '1px solid var(--color-border)',
-                            padding: '0.75rem 1.5rem',
-                            borderRadius: 'var(--radius-full)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            boxShadow: isVRMode ? '0 0 20px var(--color-primary)' : 'none',
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        <Glasses size={20} />
-                        {isVRMode ? 'VR Mode ON' : 'Enable VR Mode'}
-                    </button>
+                    {/* Map Controls */}
+                    <div style={{
+                        position: 'absolute',
+                        top: '1rem',
+                        left: '1rem',
+                        zIndex: 1000,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem'
+                    }}>
+                        <button
+                            onClick={() => setIsVRMode(!isVRMode)}
+                            style={{
+                                background: isVRMode ? 'var(--color-primary)' : 'rgba(15, 23, 42, 0.9)',
+                                color: isVRMode ? '#000' : '#fff',
+                                border: '1px solid var(--color-border)',
+                                padding: '0.75rem 1.5rem',
+                                borderRadius: 'var(--radius-full)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                boxShadow: isVRMode ? '0 0 20px var(--color-primary)' : 'none',
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            <Glasses size={20} />
+                            {isVRMode ? 'VR Mode ON' : 'Enable VR Mode'}
+                        </button>
+                        <button
+                            onClick={() => setMapType(mapType === 'satellite' ? 'street' : 'satellite')}
+                            style={{
+                                background: 'rgba(15, 23, 42, 0.9)',
+                                color: '#fff',
+                                border: '1px solid var(--color-border)',
+                                padding: '0.5rem 1.5rem',
+                                borderRadius: 'var(--radius-full)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            <MapPin size={20} />
+                            {mapType === 'satellite' ? 'Show Street Map' : 'Show Satellite'}
+                        </button>
+                    </div>
 
                     {/* Map Container with 3D Transforms */}
                     <motion.div
@@ -373,11 +430,24 @@ const ConnectPage: React.FC = () => {
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
-                            <TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                            />
+                        <MapContainer center={mapCenter} zoom={13} maxZoom={22} style={{ height: '100%', width: '100%' }}>
+                            {mapType === 'satellite' ? (
+                                <>
+                                    <TileLayer
+                                        attribution='&copy; Google Maps'
+                                        url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+                                        maxNativeZoom={20}
+                                        maxZoom={22}
+                                    />
+                                </>
+                            ) : (
+                                <TileLayer
+                                    attribution='&copy; OpenStreetMap contributors'
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    maxNativeZoom={19}
+                                    maxZoom={22}
+                                />
+                            )}
                             <MapFlyTo center={mapCenter} />
 
                             {CHAT_ROOMS.map(room => (
@@ -389,6 +459,20 @@ const ConnectPage: React.FC = () => {
                                     <Popup>
                                         <div style={{ color: '#000' }}>
                                             <strong>{room.name}</strong>
+                                            <a
+                                                href={`https://www.google.com/maps/search/?api=1&query=${room.location[0]},${room.location[1]}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{
+                                                    display: 'block',
+                                                    marginTop: '0.5rem',
+                                                    color: 'var(--color-primary)',
+                                                    textDecoration: 'underline',
+                                                    fontSize: '0.8rem'
+                                                }}
+                                            >
+                                                Open in Google Maps
+                                            </a>
                                         </div>
                                     </Popup>
                                 </Marker>

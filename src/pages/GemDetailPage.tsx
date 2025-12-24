@@ -122,22 +122,8 @@ const GemDetailPage: React.FC = () => {
 
                         <section style={{ marginBottom: '3rem' }}>
                             <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Location</h2>
-                            <div style={{ height: '300px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
-                                <MapContainer center={gem.position} zoom={15} style={{ height: '100%', width: '100%' }}>
-                                    <TileLayer
-                                        attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-                                        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                                    />
-                                    <TileLayer
-                                        url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
-                                    />
-                                    <TileLayer
-                                        url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-                                    />
-                                    <Marker position={gem.position}>
-                                        <Popup>{gem.name}</Popup>
-                                    </Marker>
-                                </MapContainer>
+                            <div style={{ height: '500px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--color-border)', position: 'relative' }}>
+                                <MapWrapper gem={gem} />
                             </div>
                         </section>
                     </div>
@@ -194,6 +180,119 @@ const GemDetailPage: React.FC = () => {
                 </div>
             </div>
         </div>
+    );
+};
+
+const MapWrapper = ({ gem }: { gem: any }) => {
+    const [is3D, setIs3D] = React.useState(false);
+    const [mapType, setMapType] = React.useState<'satellite' | 'street'>('satellite');
+
+    return (
+        <>
+            <motion.div
+                animate={{
+                    rotateX: is3D ? 45 : 0,
+                    scale: is3D ? 1.4 : 1,
+                    perspective: 1000
+                }}
+                transition={{ duration: 0.8 }}
+                style={{ height: '100%', width: '100%', transformStyle: 'preserve-3d' }}
+            >
+                <MapContainer center={gem.position} zoom={18} maxZoom={22} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                    {mapType === 'satellite' ? (
+                        <>
+                            <TileLayer
+                                attribution='&copy; Google Maps'
+                                url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+                                maxNativeZoom={20}
+                                maxZoom={22}
+                            />
+                        </>
+                    ) : (
+                        <TileLayer
+                            attribution='&copy; OpenStreetMap contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            maxNativeZoom={19}
+                            maxZoom={22}
+                        />
+                    )}
+                    <Marker position={gem.position}>
+                        <Popup>{gem.name}</Popup>
+                    </Marker>
+                </MapContainer>
+            </motion.div>
+
+            {/* Floating Controls */}
+            <div style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+                zIndex: 1000
+            }}>
+                <button
+                    onClick={() => setIs3D(!is3D)}
+                    className="btn"
+                    style={{
+                        background: is3D ? 'var(--color-primary)' : 'rgba(15, 23, 42, 0.9)',
+                        color: is3D ? '#000' : '#fff',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid var(--color-border)',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    {is3D ? '2D View' : '3D View'}
+                </button>
+                <button
+                    onClick={() => setMapType(mapType === 'satellite' ? 'street' : 'satellite')}
+                    className="btn"
+                    style={{
+                        background: 'rgba(15, 23, 42, 0.9)',
+                        color: '#fff',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid var(--color-border)',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    {mapType === 'satellite' ? 'Show Map' : 'Show Satellite'}
+                </button>
+            </div>
+
+            {/* Google Maps Button (Bottom Left) */}
+            <div style={{
+                position: 'absolute',
+                bottom: '1rem',
+                left: '1rem',
+                zIndex: 1000
+            }}>
+                <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${gem.position[0]},${gem.position[1]}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{
+                        textDecoration: 'none',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                        fontSize: '0.8rem',
+                        padding: '0.5rem 1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}
+                >
+                    <MapPin size={16} />
+                    Open Street View
+                </a>
+            </div>
+        </>
     );
 };
 

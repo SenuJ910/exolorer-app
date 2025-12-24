@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Star, AlertTriangle, Map as MapIcon, List } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Link } from 'react-router-dom';
+
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import lagosArt from '../assets/lagos-art.png';
 import { GEMS } from '../data/gems';
+import GemDetailModal from '../components/GemDetailModal';
 
 // Fix for default leaflet marker icons
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -23,9 +24,20 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 const DiscoverPage: React.FC = () => {
     const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+    const [selectedGem, setSelectedGem] = useState<any | null>(null);
+
+    const handleGemClick = (gem: any) => {
+        setSelectedGem(gem);
+    };
 
     return (
         <div className="discover-page">
+            <GemDetailModal
+                gem={selectedGem}
+                isOpen={!!selectedGem}
+                onClose={() => setSelectedGem(null)}
+            />
+
             <header style={{
                 background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${lagosArt})`,
                 backgroundSize: 'cover',
@@ -92,7 +104,11 @@ const DiscoverPage: React.FC = () => {
                         gap: '2rem'
                     }}>
                         {GEMS.map((gem) => (
-                            <Link to={`/discover/${gem.id}`} key={gem.id} style={{ display: 'block' }}>
+                            <div
+                                key={gem.id}
+                                onClick={() => handleGemClick(gem)}
+                                style={{ display: 'block', cursor: 'pointer' }}
+                            >
                                 <motion.div
                                     className="card"
                                     style={{ padding: 0, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}
@@ -139,76 +155,164 @@ const DiscoverPage: React.FC = () => {
                                         </div>
                                     </div>
                                 </motion.div>
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 ) : (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        style={{ height: '600px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--color-border)' }}
-                    >
-                        <MapContainer center={[6.4500, 3.4500]} zoom={12} style={{ height: '100%', width: '100%' }}>
-                            <TileLayer
-                                attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-                                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                            />
-                            <TileLayer
-                                url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
-                            />
-                            <TileLayer
-                                url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-                            />
-                            {GEMS.map((gem) => (
-                                <Marker
-                                    key={gem.id}
-                                    position={gem.position}
-                                    icon={L.divIcon({
-                                        className: 'custom-marker',
-                                        html: `<div style="
-                                            width: 40px; 
-                                            height: 40px; 
-                                            border-radius: 50%; 
-                                            border: 2px solid #00CC66; 
-                                            overflow: hidden; 
-                                            background: #000;
-                                            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-                                        ">
-                                            <img src="${gem.image}" style="width: 100%; height: 100%; object-fit: cover;" />
-                                        </div>`,
-                                        iconSize: [40, 40],
-                                        iconAnchor: [20, 40]
-                                    })}
-                                >
-                                    <Popup className="custom-popup">
-                                        <div style={{ width: '200px' }}>
-                                            <div style={{ height: '100px', borderRadius: '8px 8px 0 0', overflow: 'hidden', marginBottom: '0.5rem' }}>
-                                                <img src={gem.image} alt={gem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                            </div>
-                                            <h3 style={{ margin: '0 0 0.25rem', fontSize: '1rem', fontWeight: 'bold' }}>{gem.name}</h3>
-                                            <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', color: '#666' }}>{gem.category}</p>
-                                            <Link to={`/discover/${gem.id}`} style={{
-                                                display: 'block',
-                                                textAlign: 'center',
-                                                background: 'var(--color-primary)',
-                                                color: '#000',
-                                                padding: '0.4rem',
-                                                borderRadius: '4px',
-                                                textDecoration: 'none',
-                                                fontWeight: '600',
-                                                fontSize: '0.8rem'
-                                            }}>
-                                                View Details
-                                            </Link>
-                                        </div>
-                                    </Popup>
-                                </Marker>
-                            ))}
-                        </MapContainer>
-                    </motion.div>
+                    <div style={{ height: '600px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--color-border)', position: 'relative' }}>
+                        <MapWrapper gems={GEMS} onGemClick={handleGemClick} />
+                    </div>
                 )}
             </div>
         </div>
+    );
+};
+
+const MapWrapper = ({ gems, onGemClick }: { gems: any[], onGemClick: (gem: any) => void }) => {
+    const [is3D, setIs3D] = useState(false);
+    const [mapType, setMapType] = useState<'satellite' | 'street'>('satellite');
+
+    return (
+        <>
+            <motion.div
+                animate={{
+                    rotateX: is3D ? 45 : 0,
+                    scale: is3D ? 1.4 : 1,
+                    perspective: 1000
+                }}
+                transition={{ duration: 0.8 }}
+                style={{ height: '100%', width: '100%', transformStyle: 'preserve-3d' }}
+            >
+                <MapContainer center={[6.4500, 3.4500]} zoom={12} maxZoom={22} style={{ height: '100%', width: '100%' }}>
+                    {mapType === 'satellite' ? (
+                        <>
+                            <TileLayer
+                                attribution='&copy; Google Maps'
+                                url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+                                maxNativeZoom={20}
+                                maxZoom={22}
+                            />
+                        </>
+                    ) : (
+                        <TileLayer
+                            attribution='&copy; OpenStreetMap contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            maxNativeZoom={19}
+                            maxZoom={22}
+                        />
+                    )}
+                    {gems.map((gem) => (
+                        <Marker
+                            key={gem.id}
+                            position={gem.position}
+                            icon={L.divIcon({
+                                className: 'custom-marker',
+                                html: `<div style="
+                                    width: 40px; 
+                                    height: 40px; 
+                                    border-radius: 50%; 
+                                    border: 2px solid #00CC66; 
+                                    overflow: hidden; 
+                                    background: #000;
+                                    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                                ">
+                                    <img src="${gem.image}" style="width: 100%; height: 100%; object-fit: cover;" />
+                                </div>`,
+                                iconSize: [40, 40],
+                                iconAnchor: [20, 40]
+                            })}
+                        >
+                            <Popup className="custom-popup">
+                                <div style={{ width: '200px' }}>
+                                    <div style={{ height: '100px', borderRadius: '8px 8px 0 0', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                                        <img src={gem.image} alt={gem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    </div>
+                                    <h3 style={{ margin: '0 0 0.25rem', fontSize: '1rem', fontWeight: 'bold' }}>{gem.name}</h3>
+                                    <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', color: '#666' }}>{gem.category}</p>
+                                    <button
+                                        onClick={() => onGemClick(gem)}
+                                        style={{
+                                            display: 'block',
+                                            width: '100%',
+                                            textAlign: 'center',
+                                            background: 'var(--color-primary)',
+                                            color: '#000',
+                                            padding: '0.4rem',
+                                            borderRadius: '4px',
+                                            border: 'none',
+                                            fontWeight: '600',
+                                            fontSize: '0.8rem',
+                                            marginBottom: '0.5rem',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        View Details
+                                    </button>
+                                    <a
+                                        href={`https://www.google.com/maps/search/?api=1&query=${gem.position[0]},${gem.position[1]}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            display: 'block',
+                                            textAlign: 'center',
+                                            color: 'var(--color-primary)',
+                                            textDecoration: 'underline',
+                                            fontSize: '0.75rem'
+                                        }}
+                                    >
+                                        Open in Google Maps
+                                    </a>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    ))}
+                </MapContainer>
+            </motion.div>
+
+            {/* Floating Controls */}
+            <div style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+                zIndex: 1000
+            }}>
+                <button
+                    onClick={() => setIs3D(!is3D)}
+                    className="btn"
+                    style={{
+                        background: is3D ? 'var(--color-primary)' : 'rgba(15, 23, 42, 0.9)',
+                        color: is3D ? '#000' : '#fff',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid var(--color-border)',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    {is3D ? '2D View' : '3D View'}
+                </button>
+                <button
+                    onClick={() => setMapType(mapType === 'satellite' ? 'street' : 'satellite')}
+                    className="btn"
+                    style={{
+                        background: 'rgba(15, 23, 42, 0.9)',
+                        color: '#fff',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid var(--color-border)',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    {mapType === 'satellite' ? 'Show Map' : 'Show Satellite'}
+                </button>
+            </div>
+        </>
     );
 };
 

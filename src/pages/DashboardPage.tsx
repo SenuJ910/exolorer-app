@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, MapPin, Settings, Crown, LogOut, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { GEMS } from '../data/gems';
 import PaymentModal from '../components/PaymentModal';
+import GemDetailModal from '../components/GemDetailModal';
 
 const DashboardPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'overview' | 'saved' | 'settings'>('overview');
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+    const [selectedGem, setSelectedGem] = useState<any | null>(null);
+    const navigate = useNavigate();
 
     // Mock User Data
     const user = {
@@ -21,9 +24,19 @@ const DashboardPage: React.FC = () => {
 
     const savedGemsList = GEMS.filter(gem => user.savedGems.includes(gem.id));
 
+    const handleSignOut = () => {
+        // In a real app, clear auth tokens here
+        navigate('/');
+    };
+
     return (
         <div className="dashboard-page" style={{ minHeight: '100vh', background: 'var(--color-bg)', paddingBottom: '4rem' }}>
             <PaymentModal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} />
+            <GemDetailModal
+                gem={selectedGem}
+                isOpen={!!selectedGem}
+                onClose={() => setSelectedGem(null)}
+            />
 
             {/* Header / Profile Section */}
             <div style={{
@@ -153,7 +166,7 @@ const DashboardPage: React.FC = () => {
                                 </button>
                                 <hr style={{ borderColor: 'var(--color-border)', margin: '0.5rem 0' }} />
                                 <button
-                                    onClick={() => window.location.href = '/'}
+                                    onClick={handleSignOut}
                                     style={{
                                         textAlign: 'left',
                                         padding: '0.75rem 1rem',
@@ -239,9 +252,13 @@ const DashboardPage: React.FC = () => {
                                                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{gem.name}</h3>
                                                 <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{gem.category}</span>
                                             </div>
-                                            <Link to={`/discover/${gem.id}`} className="btn btn-outline" style={{ padding: '0.5rem' }}>
+                                            <button
+                                                onClick={() => setSelectedGem(gem)}
+                                                className="btn btn-outline"
+                                                style={{ padding: '0.5rem', cursor: 'pointer' }}
+                                            >
                                                 <ChevronRight size={20} />
-                                            </Link>
+                                            </button>
                                         </div>
                                     ))}
                                     {savedGemsList.length === 0 && (

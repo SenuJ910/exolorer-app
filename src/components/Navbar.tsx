@@ -156,8 +156,10 @@ const Navbar: React.FC = () => {
                                 right: 0,
                                 bottom: 0,
                                 width: 'min(300px, 80vw)',
-                                backgroundColor: 'var(--color-bg-card)',
-                                borderLeft: '1px solid var(--color-border)',
+                                backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                                backdropFilter: 'blur(25px)',
+                                WebkitBackdropFilter: 'blur(25px)',
+                                borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
                                 zIndex: 95,
                                 padding: '6rem 1.5rem 2rem', // Top padding clears the header/close button area
                                 display: 'flex',

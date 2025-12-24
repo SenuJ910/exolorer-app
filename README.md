@@ -1,4 +1,6 @@
 # Exolorer - Lagos Solo Travel Companion
+[![](https://img.shields.io/badge/Live-Demo-green)](https://SenuJ910.github.io/exolorer-app/)
+
 
 Exolorer is a mobile-first web application designed to help solo travelers navigate Lagos, Nigeria safely and authentically. It connects users with verified local "Gems" (places), events, and a community of other travelers and guides.
 
